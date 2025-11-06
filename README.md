@@ -1,4 +1,4 @@
-# ESP32 Multi-Engine Security Platform
+# NetTender
 
 A sophisticated ESP32-based security research platform featuring three independent operational engines for WiFi security testing, network analysis, and emergency networking. Built on ESP32 with dual-core architecture, OLED display, and comprehensive remote access capabilities.
 
