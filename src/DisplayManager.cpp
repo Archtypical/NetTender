@@ -21,8 +21,8 @@ void DisplayManager::begin() {
     display->setFontDirection(0);
 
     clear();
-    showMessage("ESP32", "Tri-Engine Platform");
-    delay(2000);
+    showMessage("ESP32", "Network Monitor");
+    delay(1500);
 }
 
 void DisplayManager::update() {
@@ -142,14 +142,13 @@ void DisplayManager::showBootMenu(uint8_t selection) {
 
     display->setFont(u8g2_font_6x10_tf);
 
-    // Menu items
+    // Menu items - only show engines that exist
     const char* engines[] = {
         "1. RF Scanner",
-        "2. Network Analyzer",
-        "3. Emergency Router"
+        "2. Network Analyzer"
     };
 
-    for (uint8_t i = 0; i < 3; i++) {
+    for (uint8_t i = 0; i < 2; i++) {
         uint8_t y = 20 + (i * 14);
 
         // Highlight selected item

@@ -48,40 +48,40 @@ void EngineManager::loop() {
 }
 
 bool EngineManager::performPOST() {
-    if (logger) logger->info("System", "Running POST", 1);
-    showBootStatus("POST", "Starting tests", true);
+    if (logger) logger->info("System", "Boot check", 1);
+    showBootStatus("Init", "Starting", true);
 
     // Test 1: Display
-    showBootStatus("Display", "Checking", true);
+    showBootStatus("Display", "OK", true);
     if (display == nullptr) {
-        if (logger) logger->error("System", "Display not initialized", 0);
+        if (logger) logger->error("System", "Display fail", 0);
         return false;
     }
-    if (logger) logger->success("System", "Display OK", 1);
-    delay(300);
+    if (logger) logger->success("System", "Display ready", 1);
+    delay(200);
 
     // Test 2: WiFi hardware
-    showBootStatus("WiFi", "Checking hardware", true);
+    showBootStatus("WiFi", "OK", true);
     WiFi.mode(WIFI_STA);
     if (WiFi.getMode() != WIFI_STA) {
-        if (logger) logger->error("System", "WiFi hardware fault", 0);
+        if (logger) logger->error("System", "WiFi fail", 0);
         return false;
     }
-    if (logger) logger->success("System", "WiFi OK", 1);
-    delay(300);
+    if (logger) logger->success("System", "WiFi ready", 1);
+    delay(200);
 
     // Test 3: Memory
-    showBootStatus("Memory", "Checking", true);
+    showBootStatus("Memory", "OK", true);
     uint32_t freeHeap = ESP.getFreeHeap();
     if (freeHeap < 50000) {  // Less than 50KB is critical
-        if (logger) logger->critical("System", "Low memory: " + String(freeHeap), 0);
+        if (logger) logger->critical("System", "Low mem: " + String(freeHeap / 1024) + "KB", 0);
         return false;
     }
-    if (logger) logger->success("System", "Memory OK: " + String(freeHeap / 1024) + "KB", 1);
-    delay(300);
+    if (logger) logger->success("System", "Free: " + String(freeHeap / 1024) + "KB", 1);
+    delay(200);
 
-    showBootStatus("POST", "Complete", true);
-    if (logger) logger->success("System", "POST passed", 1);
+    showBootStatus("Init", "Ready", true);
+    if (logger) logger->success("System", "Boot complete", 1);
 
     return true;
 }
@@ -128,27 +128,27 @@ void EngineManager::autoStart() {
 }
 
 void EngineManager::startDualEngineMode() {
-    if (logger) logger->info("System", "Starting DUAL ENGINE mode", 1);
-    showBootStatus("Mode", "Dual Engine", true);
+    if (logger) logger->info("System", "Starting engines", 1);
+    showBootStatus("Engines", "Loading", true);
 
     // Start RF Scanner
     if (startEngine(EngineType::RF_SCANNER)) {
-        if (logger) logger->success("System", "RF Scanner started", 2);
+        if (logger) logger->success("System", "RF Scanner up", 2);
     } else {
-        if (logger) logger->error("System", "RF Scanner failed to start", 0);
+        if (logger) logger->error("System", "RF Scanner fail", 0);
     }
 
-    delay(500);
+    delay(300);
 
     // Start Network Analyzer
     if (startEngine(EngineType::NETWORK_ANALYZER)) {
-        if (logger) logger->success("System", "Network Analyzer started", 1);
+        if (logger) logger->success("System", "Net Analyzer up", 1);
     } else {
-        if (logger) logger->error("System", "Network Analyzer failed to start", 0);
+        if (logger) logger->error("System", "Net Analyzer fail", 0);
     }
 
     if (logger) {
-        logger->success("System", "Dual engine mode operational", 1);
+        logger->success("System", "Engines running", 1);
     }
 }
 
