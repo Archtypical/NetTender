@@ -1,0 +1,13 @@
+# WiFi Beacon Broadcaster Requirements
+
+# Core packet manipulation library
+scapy>=2.5.0
+
+# Serial communication for ESP32 monitoring
+pyserial>=3.5
+
+# Optional but recommended for better performance
+# Uncomment if you want these features:
+
+# netifaces>=0.11.0  # Better network interface detection
+# pyric>=0.1.6       # Alternative wireless interface management
