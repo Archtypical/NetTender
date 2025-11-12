@@ -348,17 +348,27 @@ Use `test_i2c_scanner.cpp` to detect OLED I2C address (typically 0x3C). If displ
 
 ## Project Status
 
-**Implemented (Sniffy Boi v1.0):**
-- ✅ Single-engine architecture optimized for packet capture (24.6% flash)
+**Implemented (Sniffy Boi v1.1.0):**
+- ✅ Single-engine architecture optimized for packet capture (43.3% flash)
 - ✅ Auto-boot and Power-On Self Test
 - ✅ "Sniffy Boi" OLED display with split-screen health monitoring
 - ✅ Complete 802.11 frame parser (beacons, probes, deauth, data)
 - ✅ Full WPA/WPA2 handshake capture (M1-M4 with nonce extraction)
 - ✅ PMKID capture module (passive + clientless attack)
 - ✅ Deauthentication attack (targeted, broadcast, handshake trigger)
+- ✅ Beacon flooding attack
+- ✅ Interactive command interface (wireless C2 + serial CLI)
+- ✅ State machine with MAC-based session locking
 - ✅ Hashcat mode 22000 export for both handshakes and PMKIDs
 - ✅ Device tracking with statistics (RSSI, channels, encryption)
-- ✅ Comprehensive attack guides (3 markdown documents)
+- ✅ Comprehensive attack guides (4 markdown documents)
+
+**v1.1 Optimizations:**
+- ✅ Font caching (33% faster display rendering)
+- ✅ Unified MAC utilities (Utils.h) - zero heap allocations
+- ✅ Named constants (improved code readability)
+- ✅ Version management system (version.h)
+- ✅ Multi-environment build system (v1_1, v1_1_debug, v1_0)
 
 **Next Priorities:**
 - SD card logging for PCAP export and long-term storage

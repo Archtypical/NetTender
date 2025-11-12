@@ -1,494 +1,707 @@
-# ESP32 Network Monitor
+# Sniffy Boi v1.1.0
 
-A sophisticated ESP32-based security research platform featuring dual concurrent engines for WiFi security testing and network analysis. Built on ESP32 with dual-core architecture, OLED display, and comprehensive remote access capabilities.
+**Standalone WiFi Security Research Platform**
+
+A portable ESP32-based wardriving and WPA2 attack platform with interactive command interface, OLED feedback, and optimized performance. Built for authorized security testing, CTF competitions, and educational research.
 
 ## Overview
 
-This platform provides a complete security research toolkit in a portable ESP32 form factor. The system features auto-boot operation, split-screen OLED display with real-time health monitoring, multi-level logging, and remote access via web dashboard and telnet.
+Sniffy Boi is a **single-engine WiFi packet capture platform** designed for wardriving, handshake collection, PMKID extraction, and wireless security testing. It operates in monitor mode (promiscuous WiFi capture) without requiring network connectivity, making it ideal for field research and standalone operation.
 
 ### Key Features
 
-- **Dual-Engine Architecture**: Two engines running concurrently for comprehensive security analysis
-- **Auto-Boot to Operational**: No user input required, compile-time configuration
-- **Split-Screen OLED Display**: Real-time health status and critical logs
-- **Advanced Logging System**: 6-level classification with web dashboard export
-- **Remote Access**: Web interface (HTTP) and Telnet server
-- **Universal Cloud Storage**: WebDAV, S3-compatible, and HTTP protocols
-- **Power-On Self Test (POST)**: Automatic hardware validation at boot
+- **🎯 Single-Engine Architecture**: Optimized RF Scanner for maximum packet capture performance
+- **📡 Monitor Mode Operation**: No WiFi connection needed - pure promiscuous packet capture
+- **⌨️ Interactive Command Interface**: Wireless C2 (magic packets) + serial CLI for remote control
+- **📟 OLED Status Display**: Real-time feedback with split-screen health monitoring
+- **🔒 WPA/WPA2 Attacks**: Handshake capture, PMKID extraction, deauth attacks, beacon flooding
+- **💾 Hashcat Export**: Mode 22000 format for offline password cracking
+- **⚡ v1.1 Optimizations**: 33% faster display rendering, unified utilities, cleaner code
+- **🔐 Session Locking**: MAC-based authentication for wireless command security
 
-## Operational Mode
+## What's New in v1.1
 
-### Dual Engine (RF Scanner + Network Analyzer)
+**Performance Improvements:**
+- ✅ **33% faster display** - Font caching eliminates redundant setFont() calls
+- ✅ **Zero heap allocations** - MAC formatting uses stack buffers
+- ✅ **60% fewer font switches** - Reduced from 6-8 to 2-3 per frame
 
-The platform runs two concurrent engines for comprehensive wireless security research.
+**Code Quality:**
+- ✅ **Unified utilities** - Single Utils.h for all MAC address operations
+- ✅ **Named constants** - Magic numbers replaced with self-documenting names
+- ✅ **Version management** - Centralized versioning with build info display
 
-**Engine 1: RF Scanner**
-- Passive WiFi scanning and packet capture
-- Deauthentication attack capabilities
-- Beacon spam and probe flood
-- Evil twin AP deployment
-- PMKID capture for WPA2 analysis
-- BLE scanning and analysis
-- Device tracking and relationship mapping
+**Developer Experience:**
+- ✅ **Multi-environment builds** - Switch between v1.1, v1.1-debug, v1.0 easily
+- ✅ **Git tagged releases** - Semantic versioning with detailed changelogs
 
-**Engine 2: Network Analyzer**
-- Passive network traffic monitoring
-- DNS server with ad blocking (PiHole-like)
-- MITM proxy with ARP spoofing
-- HTTP/HTTPS traffic inspection
-- Network flow analysis and capture
-- Protocol detection and bandwidth monitoring
-- Device relationship and dependency mapping
+See [VERSION_UPGRADE_SUMMARY.md](VERSION_UPGRADE_SUMMARY.md) for full details.
 
 ## Hardware Requirements
 
 ### Minimum Configuration
-- ESP32 Dev Module (or compatible)
-- 4MB Flash minimum (8MB recommended)
-- 128x64 OLED Display (SSD1306, I2C)
-- USB power supply
+- **ESP32 Dev Board** (ESP32-S3 recommended)
+- **4MB Flash** minimum (8MB recommended for future features)
+- **128x64 OLED Display** (SSD1306, I2C interface)
+- **USB power** supply or battery
 
 ### Tested Hardware
-- Arduino Nano ESP32 (primary development target)
-- ESP32 DevKit V1
-- ESP32 WROOM-32
+- ✅ **Arduino Nano ESP32** (primary development target - ESP32-S3)
+- ✅ **ESP32 DevKit V1** (ESP32-WROOM-32)
 
 ### Display Connection
-- OLED Display: SSD1306 128x64
-- Interface: I2C
-- SDA: A4 (Arduino Nano ESP32) / GPIO 21 (ESP32 DevKit)
-- SCL: A5 (Arduino Nano ESP32) / GPIO 22 (ESP32 DevKit)
-- Address: 0x3C
-- Note: Configure pins in [config.h](include/config.h) based on your board
+- **OLED Display**: SSD1306 128x64
+- **Interface**: I2C
+- **SDA**: A4 / GPIO 21 (depending on board)
+- **SCL**: A5 / GPIO 22 (depending on board)
+- **I2C Address**: 0x3C (typical)
+- **Note**: Configure pins in [include/config.h](include/config.h)
+
+## Quick Start
+
+### 1. Install PlatformIO
+```bash
+pip install platformio
+```
+
+### 2. Build and Upload v1.1
+```bash
+# Clone repository
+git clone <repository-url>
+cd esp32
+
+# Build, upload, and monitor (all in one)
+pio run -e v1_1 --target upload --target monitor
+```
+
+### 3. Verify Version at Boot
+You should see:
+```
+╔════════════════════════════════════════════════════════════╗
+║                   SNIFFY BOI v1.1.0                        ║
+║              Wardriving & WPA2 Attack Platform           ║
+╚════════════════════════════════════════════════════════════╝
+
+  Version:     v1.1.0
+  Build:       Nov 11 2025 15:30:45
+  Platform:    Arduino Nano ESP32
+
+  Optimizations (v1.1):
+    ✓ Font caching (33% faster display)
+    ✓ Unified MAC utilities
+    ✓ Named constants (improved readability)
+```
+
+See [QUICK_START_v1.1.md](QUICK_START_v1.1.md) for detailed upload instructions.
+
+## Capabilities
+
+### Attack Vectors
+
+#### 1. **Handshake Capture** (WPA/WPA2)
+Captures complete 4-way EAPOL handshakes for offline cracking:
+- **Passive capture**: Monitors network for natural client connections
+- **Active capture**: Triggers deauth to force handshake
+- **EAPOL M1-M4 tracking**: Full handshake validation
+- **Hashcat export**: Mode 22000 for hashcat/john
+
+📖 See: [Docz/HANDSHAKE_CAPTURE_GUIDE.md](Docz/HANDSHAKE_CAPTURE_GUIDE.md)
+
+#### 2. **PMKID Extraction** (Clientless)
+Captures PMKIDs from AP beacons without client presence:
+- **Passive PMKID**: Extracts from normal beacons
+- **Active PMKID**: Sends association requests to trigger responses
+- **Clientless attack**: No connected clients required
+- **Faster than handshakes**: Single M1 frame needed
+
+📖 See: [Docz/PMKID_ATTACK_GUIDE.md](Docz/PMKID_ATTACK_GUIDE.md)
+
+#### 3. **Deauthentication Attacks**
+Disconnects clients from target networks:
+- **Targeted deauth**: Specific client MAC addresses
+- **Broadcast deauth**: All clients on AP
+- **Handshake trigger**: Force clients to reconnect for capture
+- **Configurable duration**: 10-second attack window
+
+📖 See: [Docz/DEAUTH_ATTACK_GUIDE.md](Docz/DEAUTH_ATTACK_GUIDE.md)
+
+#### 4. **Beacon Flooding**
+Creates fake access points for testing:
+- **Mass SSID generation**: Floods WiFi list with fake APs
+- **Random BSSIDs**: Each beacon has unique MAC
+- **Configurable count**: 50-100 beacons per second
+- **Denial of service**: Overwhelms WiFi scanners
+
+📖 See: [Docz/BEACON_FLOOD_ATTACK_GUIDE.md](Docz/BEACON_FLOOD_ATTACK_GUIDE.md)
+
+### Command Interface
+
+Sniffy Boi features a **dual-interface command system** for remote control:
+
+#### Wireless C2 (Magic Packets)
+Control the device wirelessly by sending specially-crafted WiFi packets:
+- **MAC-based authentication**: Session locking prevents unauthorized access
+- **No network connection**: Works in monitor mode
+- **Commands**: SCAN, DEAUTH, PMKID, HANDSHAKE, BEACONFLOOD, STATUS
+- **Session management**: 2-minute timeout, automatic cooldown
+
+#### Serial CLI
+Interactive terminal via USB:
+- **115200 baud** standard serial
+- **Same commands** as wireless interface
+- **Real-time feedback**: Attack progress and results
+- **Debug logging**: Verbose output for troubleshooting
+
+📖 See: [Docz/COMMAND_INTERFACE_GUIDE.md](Docz/COMMAND_INTERFACE_GUIDE.md)
+
+### State Machine
+
+Sniffy Boi uses a **state machine architecture** with 18 states for robust command handling:
+
+```
+IDLE ──> SCANNING ──> SCAN_COMPLETE ──> AWAITING_TARGET
+                                              │
+                 ┌────────────────────────────┴──────────────┐
+                 │                                            │
+                 v                                            v
+           DEAUTH_ATTACK                              PMKID_ATTACK
+                 │                                            │
+                 v                                            v
+           DEAUTH_COMPLETE                          PMKID_COMPLETE
+                 │                                            │
+                 └────────────────────> COOLDOWN <───────────┘
+                                            │
+                                            v
+                                         IDLE
+```
+
+**Key Features:**
+- **Session locking**: First wireless command locks to sender MAC
+- **Timeout protection**: 2-minute idle timeout returns to IDLE
+- **Cooldown enforcement**: 60-second cooldown after attacks
+- **Error recovery**: Automatic state transitions on failures
+
+📖 See: [Docz/INTERACTIVE_COMMAND_FLOW.md](Docz/INTERACTIVE_COMMAND_FLOW.md)
 
 ## Software Architecture
 
 ### Core Components
 
-**EngineManager**
-- Multi-engine lifecycle management
+#### **EngineManager**
+Manages the RF Scanner engine lifecycle:
 - Power-On Self Test (POST) execution
-- Auto-start logic based on compile-time configuration
-- Periodic health monitoring (5-second intervals)
-- Engine creation, initialization, and cleanup
+- Auto-start logic at boot
+- Health monitoring (5-second heartbeat)
+- Engine initialization and cleanup
 
-**SystemLogger**
-- 6-level logging system: INFORMATIONAL, WARNING, ERROR, CRITICAL, FLAGGED, SUCCESS
-- Engine health tracking with heartbeat monitoring
-- Log filtering (OLED shows only CRITICAL/FLAGGED/SUCCESS)
-- Timestamped entries: HH:MM:SS format
-- Web dashboard export with full history
+#### **RFScanner** (Main Engine)
+WiFi packet capture and attack engine:
+- **PacketSniffer**: Promiscuous mode 802.11 frame parsing
+- **PMKIDCapture**: Clientless PMKID extraction module
+- **Handshake tracking**: EAPOL M1-M4 sequence detection
+- **Attack execution**: Deauth and beacon flooding
+- **Device tracking**: RSSI, channel, encryption statistics
 
-**DisplayManager**
-- Split-screen OLED interface (64px left, 64px right)
-- Left panel: Engine health status (OK/ERR/!! indicators)
-- Right panel: Live log stream with latest critical events
-- Boot sequence visualization with progress
-- U8g2 library with optimized rendering
+#### **CommandInterface**
+Dual-mode command processor:
+- Wireless C2 via magic packet detection
+- Serial CLI via USB terminal
+- State machine with 18 states
+- MAC-based session authentication
+- Timeout and cooldown enforcement
 
-**WebInterface**
-- HTTP server on port 80
-- Dashboard with engine status table
-- Scrollable log viewer with color-coded severity
-- JSON API at /api/logs for programmatic access
-- Real-time system statistics
+#### **CommandLedger**
+Persistent state storage using LittleFS:
+- Saves command state to filesystem
+- Session MAC tracking
+- Attack target persistence
+- Survives reboots and crashes
 
-**TelnetServer**
-- Telnet access on port 23
-- Command-line interface for remote management
-- Commands: status, engines, start, stop, restart, help, clear, exit
-- Session management with authentication hooks
+#### **SystemLogger**
+6-level logging system:
+- **INFORMATIONAL**: General operation logs
+- **WARNING**: Non-critical issues
+- **ERROR**: Recoverable failures
+- **CRITICAL**: Severe errors (shown on OLED)
+- **FLAGGED**: Important events (shown on OLED)
+- **SUCCESS**: Completed operations (shown on OLED)
+
+#### **DisplayManager** (v1.1 Optimized)
+Split-screen OLED interface with font caching:
+- **Left panel**: Engine health status (OK/ERR indicators)
+- **Right panel**: Live log stream (last 3-4 events)
+- **Font caching**: 33% faster rendering
+- **Progress bars**: Attack duration visualization
+- **Boot sequence**: POST status and progress
 
 ### Packet Capture System
 
-**PacketSniffer**
-- WiFi promiscuous mode operation
-- ISR-safe packet handling
-- Device statistics tracking
-- MAC address resolution
-- Channel hopping support
-- Static members for ISR context
+#### WiFi Monitor Mode
+Operates in ESP32's promiscuous mode for raw 802.11 frame capture:
+- **Channel hopping**: Scans all 13 WiFi channels (configurable)
+- **Frame types**: Beacons, probe requests/responses, data, management
+- **ISR-safe callbacks**: Interrupt-safe packet handling
+- **Device tracking**: MAC address resolution and statistics
 
-**NetworkMonitor**
-- Network quality metrics (RSSI, packet loss)
-- Scan detection (port scans, network probes)
-- Connection event tracking
-- Anomaly detection heuristics
+#### ISR-Safe Design Pattern
+Critical for WiFi packet callbacks that run in interrupt context:
+
+```cpp
+// PacketSniffer uses static members for ISR context
+class PacketSniffer {
+    static PacketSniffer* instance;
+    static void IRAM_ATTR promiscuousCallback(void* buf, wifi_promiscuous_pkt_type_t type);
+};
+```
+
+**ISR Restrictions:**
+- ❌ No dynamic memory allocation (`new`, `malloc`, `String`)
+- ❌ No Serial/display I/O
+- ❌ No FreeRTOS synchronization
+- ✅ Use static buffers and flags
+- ✅ Defer processing to main loop
+
+## Memory Usage (v1.1)
+
+### Flash Memory
+```
+Used:      852,017 bytes (43.3% of 1,966,080 bytes)
+Available: 1,114,063 bytes (56.7% free)
+
+Binary breakdown:
+  firmware.bin:   852 KB
+  bootloader.bin: 17 KB
+  partitions.bin: 3 KB
+```
+
+### RAM Usage
+```
+Compile-time: 45,048 bytes (13.7% of 327,680 bytes)
+Runtime:      Variable (packet buffers, logs, handshakes)
+Available:    282,632 bytes (86.3% free)
+```
+
+**v1.1 vs v1.0:**
+- Flash: +0.7 KB (version strings and optimization code)
+- RAM: No change
+- Performance: 33% faster display, zero heap allocations for MAC ops
+
+## Build System
+
+Sniffy Boi v1.1 supports **multi-environment builds** for easy version switching:
+
+### Available Environments
+
+| Environment | Purpose | When to Use |
+|-------------|---------|-------------|
+| **v1_1** ⭐ | Current optimized build | Production, daily use |
+| **v1_1_debug** | Debug build with verbose logging | Development, troubleshooting |
+| **v1_0** | Legacy pre-optimization | Comparison, rollback |
+| **esp32dev** | Backward compatibility alias | If you used this before |
+
+### Build Commands
+
+```bash
+# Build v1.1 (recommended)
+pio run -e v1_1
+
+# Build with debug symbols
+pio run -e v1_1_debug
+
+# Build v1.0 (requires git checkout first)
+git checkout v1.0
+pio run -e v1_0
+git checkout main
+```
+
+### Upload Commands
+
+```bash
+# Upload v1.1 (one-liner with monitor)
+pio run -e v1_1 --target upload --target monitor
+
+# Upload to specific port
+pio run -e v1_1 --target upload --upload-port /dev/ttyUSB0
+
+# Upload debug build
+pio run -e v1_1_debug --target upload
+```
+
+📖 See: [BUILD_GUIDE.md](BUILD_GUIDE.md) for comprehensive build instructions.
 
 ## Configuration
 
-### Compile-Time Mode Selection
+### Compile-Time Settings
 
-Edit `include/config.h`:
-
-```cpp
-// Dual Engine Mode: RF Scanner + Network Analyzer (concurrent)
-#define MODE_DUAL_ENGINE        true
-
-// Auto-start engines at boot (no menu)
-#define AUTO_START_ON_BOOT      true
-
-// Display boot status sequence on OLED
-#define SHOW_BOOT_STATUS        true
-
-// Perform Power-On Self Test (POST)
-#define BOOT_HEALTH_CHECK       true
-```
-
-### Network Features
-
-Edit `include/NetworkConfig.h` to enable/disable network services:
+Edit `include/config.h` for hardware and behavior settings:
 
 ```cpp
-// Web and Telnet Services
-#define NET_ENABLE_HTTP_SERVER      true
-#define NET_ENABLE_TELNET           true
+// WiFi Configuration (not used in monitor mode, but required for ESP32 init)
+#define WIFI_SSID           "YourWiFi"
+#define WIFI_PASSWORD       "password"
 
-// Cloud Storage Protocols
-#define NET_ENABLE_WEBDAV           false  // NextCloud, ownCloud, etc.
-#define NET_ENABLE_S3               false  // AWS S3, MinIO, Wasabi, etc.
-#define NET_ENABLE_HTTP_UPLOAD      false  // Custom HTTP endpoints
+// Operation Mode
+#define MODE_DUAL_ENGINE        true   // Legacy - only RF Scanner runs now
+#define AUTO_START_ON_BOOT      true   // Auto-start RF Scanner at boot
+#define BOOT_HEALTH_CHECK       true   // Run Power-On Self Test
 
-// DNS and Captive Portal
-#define NET_ENABLE_DNS_SERVER       false
-#define NET_ENABLE_CAPTIVE_PORTAL   false
+// Channel Hopping
+#define ENABLE_CHANNEL_HOPPING  true   // Scan all 13 channels
+#define CHANNEL_HOP_INTERVAL    1000   // 1 second per channel
+#define START_CHANNEL           1
+#define MAX_CHANNEL             13
+
+// Display Configuration
+#define OLED_I2C_ADDRESS        0x3C
+#define OLED_SDA_PIN            A4     // Arduino Nano ESP32
+#define OLED_SCL_PIN            A5
 ```
 
-## Building and Flashing
+### No Network Configuration Needed
 
-### Prerequisites
+**Note:** Sniffy Boi v1.1 operates in **standalone monitor mode** and does NOT require WiFi network connectivity. The WiFi credentials in config.h are legacy settings kept for ESP32 initialization compatibility but are not used during operation.
 
-Install PlatformIO:
-```bash
-pip install platformio
-```
-
-### Build Firmware
-
-```bash
-cd esp32
-~/.platformio/penv/bin/platformio run
-```
-
-Build output:
-- `firmware.bin` - Main application (943 KB)
-- `bootloader.bin` - ESP32 bootloader (17 KB)
-- `partitions.bin` - Partition table (3 KB)
-
-### Flash to Device
-
-```bash
-# Auto-detect port
-~/.platformio/penv/bin/platformio run --target upload
-
-# Specify port manually
-~/.platformio/penv/bin/platformio run --target upload --upload-port /dev/ttyUSB0
-
-# Flash and monitor serial output
-~/.platformio/penv/bin/platformio run --target upload --target monitor
-```
-
-### Serial Monitor
-
-```bash
-~/.platformio/penv/bin/platformio device monitor --baud 115200
-```
-
-## Memory Usage
-
-### Flash Memory
-- Used: 937,369 bytes (71.5%)
-- Available: 373,351 bytes (28.5%)
-- Total: 1,310,720 bytes (1.25 MB partition)
-
-### RAM Usage
-- Compile-time: 49,968 bytes (15.2%)
-- Runtime: Variable based on active engines and packet buffers
-- Available: 277,712 bytes (84.8%)
+**Removed:** `NetworkConfig.h` (all networking protocols removed in v1.0)
 
 ## Boot Sequence
 
-1. **Hardware Initialization**
-   - Display: OLED initialization and test
-   - WiFi: Hardware presence check
-   - Memory: Free heap validation (minimum 50 KB)
+1. **Hardware Initialization** (main.cpp)
+   - Serial console @ 115200 baud
+   - DisplayManager (OLED on I2C)
+   - SystemLogger (100-entry ring buffer)
+   - EngineManager
 
 2. **Power-On Self Test (POST)**
    - Display functional test
    - WiFi hardware validation
-   - Memory availability check
-   - Results logged and displayed on OLED
+   - Memory check (minimum 50 KB free heap)
+   - Results displayed on OLED with progress bar
 
 3. **Engine Auto-Start**
-   - Dual Engine Mode: RF Scanner + Network Analyzer start concurrently
-   - Engine registration with SystemLogger
-   - Health monitoring activation
+   - RF Scanner initializes
+   - WiFi promiscuous mode enabled
+   - PacketSniffer and PMKIDCapture modules ready
+   - Engine registers with logger
 
-4. **Operational**
-   - Split-screen OLED shows engine health and live logs
-   - Web server starts on WiFi connection
-   - Telnet server available for remote access
-   - Engines enter main loop execution
+4. **Operational State**
+   - Split-screen OLED shows engine health and logs
+   - Command interface active (serial + wireless)
+   - Channel hopping begins (if enabled)
+   - Device enters main loop
 
 ## Display Layout
 
 ### Boot Sequence View
 ```
-+------------------------+
-|    BOOT SEQUENCE       |
-|  [Component]: Status   |
-|  [========>     ] 60%  |
-+------------------------+
++---------------------------+
+|    Sniffy Boi v1.1.0      |
+|                           |
+|  [Display]: OK            |
+|  [WiFi]:    OK            |
+|  [Memory]:  OK            |
+|                           |
+|  [===========>      ] 75% |
++---------------------------+
 ```
 
 ### Operational View (Split-Screen)
 ```
-+------------+------------+
-| RF Scanner | 12:34:56   |
-|    OK      | CRITICAL   |
-| NetworkAna | RF Scanner |
-|    OK      | Deauth OK  |
-|            |            |
-| Errors: 0  | 12:34:58   |
-| Warns:  2  | SUCCESS    |
-|            | NetAnalyze |
-+------------+------------+
++------------+-------------+
+| RF Scanner | 12:34:56    |
+|    OK      | SUCCESS     |
+|            | RFScanner   |
+| Errors: 0  | Handshake   |
+| Warns:  0  | Captured    |
+|            |             |
+|            | 12:34:58    |
+|            | CRITICAL    |
++------------+-------------+
  Left: Health | Right: Logs
 ```
 
-## Web Dashboard
-
-Access at `http://<esp32-ip>/`
-
-### Features
-- Engine status table with operational state
-- Error and warning counts per engine
-- Scrollable log viewer with full history
-- Color-coded log entries:
-  - Red: ERROR, CRITICAL
-  - Orange: WARNING
-  - Green: SUCCESS
-  - Yellow: FLAGGED
-  - Blue: INFORMATIONAL
-
-### API Endpoints
-
-**GET /logs** - HTML log viewer
-**GET /api/logs** - JSON log data
-```json
-{
-  "engines": [
-    {
-      "name": "RF Scanner",
-      "status": "operational",
-      "errors": 0,
-      "warnings": 2
-    }
-  ],
-  "logs": [
-    {
-      "timestamp": "12:34:56",
-      "level": "SUCCESS",
-      "engine": "RF Scanner",
-      "message": "Packet capture started"
-    }
-  ]
-}
+### Command Execution Feedback
+```
++---------------------------+
+|    DEAUTH ATTACK          |
+|                           |
+|  Target: AA:BB:CC:DD:EE:FF|
+|  Duration: 10s            |
+|                           |
+|  [=======>         ] 60%  |
++---------------------------+
 ```
 
-## Telnet Interface
+## Documentation
 
-Connect: `telnet <esp32-ip> 23`
+### Quick Start Guides
+- **[QUICK_START_v1.1.md](QUICK_START_v1.1.md)** - 30-second upload guide
+- **[BUILD_GUIDE.md](BUILD_GUIDE.md)** - Multi-version build system
+- **[VERSION_UPGRADE_SUMMARY.md](VERSION_UPGRADE_SUMMARY.md)** - v1.0 to v1.1 upgrade
 
-### Available Commands
+### Attack Guides
+- **[Docz/HANDSHAKE_CAPTURE_GUIDE.md](Docz/HANDSHAKE_CAPTURE_GUIDE.md)** - WPA/WPA2 handshake capture
+- **[Docz/PMKID_ATTACK_GUIDE.md](Docz/PMKID_ATTACK_GUIDE.md)** - Clientless PMKID extraction
+- **[Docz/DEAUTH_ATTACK_GUIDE.md](Docz/DEAUTH_ATTACK_GUIDE.md)** - Deauthentication attacks
+- **[Docz/BEACON_FLOOD_ATTACK_GUIDE.md](Docz/BEACON_FLOOD_ATTACK_GUIDE.md)** - Beacon flooding
 
-| Command | Description |
-|---------|-------------|
-| status | Show system and engine status |
-| engines | List all active engines |
-| start [engine] | Start specified engine |
-| stop [engine] | Stop specified engine |
-| restart | Restart all engines |
-| help | Show command help |
-| clear | Clear screen |
-| exit | Disconnect session |
+### Architecture Documentation
+- **[Docz/COMMAND_INTERFACE_GUIDE.md](Docz/COMMAND_INTERFACE_GUIDE.md)** - Wireless C2 and serial CLI
+- **[Docz/INTERACTIVE_COMMAND_FLOW.md](Docz/INTERACTIVE_COMMAND_FLOW.md)** - State machine design
+- **[Docz/PROJECT_STRUCTURE.md](Docz/PROJECT_STRUCTURE.md)** - File organization
+- **[Docz/LANGUAGE_ARCHITECTURE_REPORT.md](Docz/LANGUAGE_ARCHITECTURE_REPORT.md)** - Code analysis
+- **[Docz/CLAUDE.md](Docz/CLAUDE.md)** - Development context for AI assistants
 
-## Cloud Storage Integration
+### Optimization Documentation
+- **[Docz/OPTIMIZATION_MASTER.md](Docz/OPTIMIZATION_MASTER.md)** - Complete optimization analysis
+- **[Docz/OPTIMIZATIONS_APPLIED.md](Docz/OPTIMIZATIONS_APPLIED.md)** - v1.1 implementation summary
 
-### WebDAV Configuration
+## Use Cases
 
-Compatible with: NextCloud, ownCloud, Box, pCloud, Yandex, Koofr, Google Drive (via WebDAV bridge)
+### Authorized Security Testing
+- **Penetration testing**: Authorized network security assessments
+- **WiFi auditing**: Evaluating WPA/WPA2 security strength
+- **Client testing**: Validating device security configurations
+- **Red team exercises**: Simulating wireless attacks
 
-```cpp
-#define NET_ENABLE_WEBDAV           true
-#define NET_WEBDAV_URL              "https://cloud.example.com/remote.php/dav/files/user/"
-#define NET_WEBDAV_USERNAME         "username"
-#define NET_WEBDAV_PASSWORD         "password"
-```
+### Wardriving and Research
+- **WiFi mapping**: Discovering access points in an area
+- **Encryption surveys**: Documenting security protocol usage
+- **SSID collection**: Building WiFi network databases
+- **Channel analysis**: Understanding frequency utilization
 
-### S3-Compatible Configuration
-
-Compatible with: AWS S3, MinIO, Wasabi, Backblaze B2, DigitalOcean Spaces, Cloudflare R2, Storj
-
-```cpp
-#define NET_ENABLE_S3               true
-#define NET_S3_ENDPOINT             "s3.amazonaws.com"
-#define NET_S3_BUCKET               "bucket-name"
-#define NET_S3_ACCESS_KEY           "access_key"
-#define NET_S3_SECRET_KEY           "secret_key"
-#define NET_S3_REGION               "us-east-1"
-```
-
-### Generic HTTP Upload
-
-```cpp
-#define NET_ENABLE_HTTP_UPLOAD      true
-#define NET_HTTP_UPLOAD_URL         "https://api.example.com/upload"
-#define NET_HTTP_UPLOAD_METHOD      "POST"
-#define NET_HTTP_API_KEY            "api_key"
-```
-
-## Development Status
-
-### Implemented Features
-- [x] Multi-engine architecture
-- [x] Dual-engine concurrent operation
-- [x] Auto-boot with compile-time configuration
-- [x] Power-On Self Test (POST)
-- [x] Split-screen OLED display
-- [x] Multi-level logging system
-- [x] Engine health monitoring
-- [x] Web dashboard with log viewer
-- [x] Telnet remote access
-- [x] Universal cloud storage protocols
-- [x] Stub implementations for RF Scanner and Network Analyzer
-
-### In Development
-- [ ] Full RF Scanner packet capture implementation
-- [ ] Deauthentication attack functionality
-- [ ] Beacon spam and probe flood
-- [ ] PMKID capture and analysis
-- [ ] Network Analyzer MITM proxy
-- [ ] DNS server with ad blocking
-- [ ] Traffic flow capture and analysis
-- [ ] BLE scanning and device tracking
-
-### Planned Features
-- [ ] SD card logging for long-term storage
-- [ ] GPS module integration for wardriving
-- [ ] Battery level monitoring
-- [ ] Sleep mode for power conservation
-- [ ] OTA firmware updates
-- [ ] SSL certificate generation for MITM
-- [ ] Custom filter rules for packet capture
-- [ ] Packet replay capabilities
-
-## Security Considerations
-
-### Authorized Use Only
-
-This platform is designed for authorized security testing, defensive security research, CTF challenges, and educational contexts. Users must:
-
-- Obtain explicit written authorization before testing any network
-- Only use on networks you own or have permission to test
-- Comply with all local laws and regulations regarding wireless security testing
-- Use responsibly and ethically
-
-### Prohibited Use
-
-Do NOT use this platform for:
-- Unauthorized network access or testing
-- Disrupting network services (DoS attacks)
-- Mass targeting of networks or devices
-- Supply chain compromise
-- Detection evasion for malicious purposes
-- Any illegal activity
-
-### Legal Notice
-
-Misuse of wireless security tools may violate computer fraud and abuse laws, unauthorized access statutes, and wireless communication regulations. Users are solely responsible for ensuring their use complies with applicable laws.
+### Educational Contexts
+- **Security courses**: Demonstrating wireless attack vectors
+- **CTF competitions**: Capture The Flag wireless challenges
+- **Lab environments**: Hands-on security training
+- **Research projects**: Academic wireless security studies
 
 ## Troubleshooting
 
-### Build Errors
+### Build Issues
 
-**Error: undefined reference to class members**
-- Ensure all .cpp files are in the src/ directory
-- Check that static members are initialized in .cpp files
-- Verify header includes are correct
+**"Utils.h not found"**
+```bash
+# Ensure you have all v1.1 files
+git pull
+git checkout main
+ls include/Utils.h  # Should exist
+```
 
-**Error: macro conflicts (e.g., DNS_SERVER)**
-- Check for naming collisions between enums and #define macros
-- Rename enum values or macros to avoid conflicts
+**Build fails after git pull**
+```bash
+# Clean and rebuild
+pio run --target clean
+rm -rf .pio
+pio run -e v1_1
+```
 
-**Error: dynamic_cast not allowed**
-- ESP32 Arduino framework may have RTTI limitations
-- Use string comparison or other type identification methods instead
+### Upload Issues
+
+**"Could not open port /dev/ttyACM0"**
+```bash
+# Add user to dialout group (Linux)
+sudo usermod -a -G dialout $USER
+# Log out and back in, then try again
+```
+
+**Device not found**
+```bash
+# List available ports
+pio device list
+
+# Use correct port
+pio run -e v1_1 --target upload --upload-port /dev/ttyUSB0
+```
 
 ### Runtime Issues
 
-**OLED display not showing**
-- Check I2C connections (SDA: GPIO 21, SCL: GPIO 22)
-- Verify OLED address (typically 0x3C)
-- Check power supply voltage (3.3V or 5V depending on module)
+**OLED display blank**
+- Check I2C connections (SDA: A4, SCL: A5)
+- Verify OLED address (run I2C scanner: 0x3C typical)
+- Check power supply (3.3V or 5V depending on module)
 
 **POST failures**
-- Display not initialized: Check I2C connections
-- WiFi hardware fault: Verify ESP32 module
-- Low memory: Disable unused features in NetworkConfig.h
+- Display test fails: Check I2C wiring
+- WiFi test fails: Verify ESP32 module
+- Memory test fails: Reduce SystemLogger maxEntries
 
-**Web dashboard not accessible**
-- Check WiFi connection status in serial monitor
-- Verify ESP32 IP address (printed at boot)
-- Ensure NET_ENABLE_HTTP_SERVER is true in NetworkConfig.h
+**No packets captured**
+- Verify WiFi channel matches target AP
+- Disable channel hopping for targeted capture
+- Check antenna connection
+- Ensure monitor mode enabled (check serial output)
+
+**Version shows v1.0 instead of v1.1**
+```bash
+# Explicitly upload v1_1 environment
+pio run -e v1_1 --target upload
+
+# Verify with serial monitor
+pio device monitor --baud 115200
+# Look for "SNIFFY BOI v1.1.0" in boot banner
+```
+
+## Security Considerations
+
+### ⚠️ Authorized Use Only
+
+This platform is designed for:
+- ✅ **Authorized security testing** with written permission
+- ✅ **Networks you own** or have explicit authorization to test
+- ✅ **CTF competitions** and hacking challenges
+- ✅ **Educational contexts** with proper supervision
+- ✅ **Defensive security research** in controlled environments
+
+### ❌ Prohibited Activities
+
+Do **NOT** use Sniffy Boi for:
+- ❌ Unauthorized network access or testing
+- ❌ Disrupting network services (DoS attacks)
+- ❌ Mass targeting of networks or devices
+- ❌ Intercepting others' communications without authorization
+- ❌ Any activity violating local/national laws
+
+### Legal Notice
+
+**Unauthorized use of wireless security tools may violate:**
+- Computer Fraud and Abuse Act (CFAA) - USA
+- Unauthorized access statutes
+- Wireless communication regulations
+- Local and international cybercrime laws
+
+**Users are solely responsible** for ensuring their use complies with all applicable laws and regulations. The developers assume no liability for misuse.
+
+## Development Status
+
+### Implemented Features (v1.1.0) ✅
+- ✅ Single-engine RF Scanner architecture
+- ✅ WiFi monitor mode (promiscuous packet capture)
+- ✅ Complete WPA/WPA2 handshake capture (EAPOL M1-M4)
+- ✅ PMKID extraction (passive + clientless attack)
+- ✅ Deauthentication attacks (targeted + broadcast)
+- ✅ Beacon flooding
+- ✅ Interactive command interface (wireless C2 + serial CLI)
+- ✅ State machine with MAC-based session locking
+- ✅ OLED display with split-screen layout
+- ✅ Hashcat mode 22000 export
+- ✅ Channel hopping (13 channels)
+- ✅ Device tracking and statistics
+- ✅ Filesystem state persistence (LittleFS)
+- ✅ Font caching optimization (33% faster)
+- ✅ Unified MAC utilities (zero heap allocations)
+- ✅ Multi-environment build system
+
+### Removed Features (v1.0 → v1.1) ❌
+- ❌ NetworkAnalyzer engine (focus on WiFi attacks)
+- ❌ WebInterface and HTTP server (attack surface reduction)
+- ❌ TelnetServer (security hardening)
+- ❌ Cloud storage protocols (WebDAV, S3, HTTP upload)
+- ❌ ArduinoJson dependency (lighter footprint)
+
+**Result:** Freed 162 KB flash, simplified codebase, better performance
+
+### Planned Features 🚀
+- [ ] **SD card logging** - PCAP export and long-term storage
+- [ ] **GPS integration** - Wardriving with lat/lon coordinates
+- [ ] **OLED menu system** - Attack mode selection without serial
+- [ ] **Auto-attack mode** - Deauth all clients on channel
+- [ ] **WPA3 detection** - Identify and flag WPA3 networks
+- [ ] **Bluetooth scanning** - BLE device discovery
+- [ ] **Battery monitoring** - Power level tracking
+- [ ] **Sleep mode** - Power conservation for portable use
 
 ## Contributing
 
-Contributions are welcome! Areas of interest:
+Contributions welcome! Areas of interest:
 
-- Full implementation of RF Scanner packet capture
-- Network Analyzer MITM and DNS features
-- Additional cloud storage protocols
-- Performance optimizations
-- Documentation improvements
-- Bug fixes and testing
+- **SD card logging** - PCAP format export
+- **GPS module integration** - Wardriving coordinates
+- **Performance optimizations** - Further speed improvements
+- **Documentation improvements** - Clarity and examples
+- **Bug fixes** - Testing and issue resolution
+- **Hardware testing** - Validation on different ESP32 boards
 
 ### Development Guidelines
 
 - Follow existing code structure and naming conventions
-- Use static members only when required (ISR context)
-- Document all public APIs with comments
+- Use `Utils.h` for MAC address operations (no duplicates!)
+- Use named constants instead of magic numbers
+- Preserve ISR-safe patterns in packet callbacks
 - Test on real hardware before submitting
-- Keep memory usage minimal (target <80% flash, <30% RAM)
+- Keep memory usage minimal (target <50% flash, <20% RAM)
+- Document all public APIs with comments
 
-## License
+### Testing Checklist
 
-This project is provided as-is for educational and authorized security research purposes. Users assume all responsibility for compliance with applicable laws.
+Before submitting changes:
+- [ ] Builds without errors on v1_1 environment
+- [ ] Uploads and boots successfully
+- [ ] Version banner shows correct info
+- [ ] All commands work via serial
+- [ ] Wireless C2 commands work
+- [ ] OLED display updates correctly
+- [ ] No memory leaks (check free heap)
+- [ ] Code follows project conventions
 
 ## References
 
 ### ESP32 Documentation
 - ESP-IDF Programming Guide: https://docs.espressif.com/projects/esp-idf/
 - Arduino-ESP32 Reference: https://docs.espressif.com/projects/arduino-esp32/
+- WiFi Promiscuous Mode: ESP32 Technical Reference Manual
 
 ### Libraries
 - U8g2 OLED Library: https://github.com/olikraus/u8g2
-- ArduinoJson: https://arduinojson.org/
 - PlatformIO: https://platformio.org/
 
 ### Wireless Security
-- WiFi Promiscuous Mode: ESP32 Technical Reference Manual
 - 802.11 Frame Types: IEEE 802.11 Standard
-- WPA2 Security: Wi-Fi Alliance Documentation
+- WPA2 4-Way Handshake: Wi-Fi Alliance Documentation
+- PMKID Attack: https://hashcat.net/forum/thread-7717.html
+- Hashcat Mode 22000: https://hashcat.net/wiki/doku.php?id=cracking_wpawpa2
 
-## Project Structure
+## License
 
-See `PROJECT_STRUCTURE.md` for detailed file organization and build artifact documentation.
+This project is provided **as-is** for educational and authorized security research purposes.
 
-## Contact
-
-For questions, issues, or contributions, please use the GitHub issue tracker.
+**No warranty** is provided. Users assume all responsibility for compliance with applicable laws.
 
 ---
 
-**Disclaimer**: This tool is for educational and authorized security testing only. Unauthorized network access or disruption is illegal and unethical. Always obtain proper authorization before conducting security research.
+## Quick Reference Card
+
+### Build Commands
+```bash
+pio run -e v1_1                          # Build v1.1
+pio run -e v1_1 --target upload          # Upload v1.1
+pio run -e v1_1 --target upload --target monitor  # Upload + monitor
+pio device monitor --baud 115200         # Serial monitor only
+```
+
+### Attack Commands (Serial/Wireless)
+```
+scan                    - Scan for WiFi networks
+deauth <MAC>            - Deauth specific client
+deauth FF:FF:FF:FF:FF:FF - Deauth all clients
+pmkid <BSSID>           - Capture PMKID from AP
+handshake <BSSID>       - Trigger handshake capture
+beaconflood             - Start beacon flooding
+status                  - Show current state
+help                    - List all commands
+```
+
+### Memory Stats
+- Flash: 852 KB (43.3%)
+- RAM: 45 KB (13.7%)
+- **56.7% flash available** for future features
+
+### Version Info
+- **Current**: v1.1.0 (Nov 11, 2025)
+- **Previous**: v1.0.0
+- **Git Tag**: v1.1.0
+
+---
+
+**Disclaimer**: This tool is for **educational and authorized security testing only**. Unauthorized network access, disruption, or interception is **illegal and unethical**. Always obtain proper authorization before conducting security research.
+
+**Enjoy Sniffy Boi v1.1! 🎯**
